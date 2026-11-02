@@ -10,6 +10,12 @@ builder.Services.AddRazorComponents()
 // If it used a DbContext, it would have to be Scoped.
 builder.Services.AddSingleton<BlazorApp1.Services.IRecordValidator, BlazorApp1.Services.RecordValidator>();
 
+// Blazor Server: a scoped DbContext would live for the whole user session (circuit),
+// so we use a factory and create a short-lived context per operation.
+builder.Services.AddDbContextFactory<BlazorApp1.Data.AppDbContext>(options =>
+    Microsoft.EntityFrameworkCore.SqlServerDbContextOptionsExtensions.UseSqlServer(
+        options, builder.Configuration.GetConnectionString("StudyERP")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

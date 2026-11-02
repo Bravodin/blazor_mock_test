@@ -2,7 +2,10 @@
 @rendermode InteractiveServer
 @using BlazorApp1.Models
 @using BlazorApp1.Services
+@using BlazorApp1.Data
+@using Microsoft.EntityFrameworkCore
 @inject IRecordValidator Validator
+@inject IDbContextFactory<AppDbContext> DbFactory
 
 <PageTitle>Data Validator</PageTitle>
 
@@ -37,6 +40,17 @@
             <div class="card bad"><span class="num">@_report.InvalidRows</span><span>with issues</span></div>
         </div>
 
+        @if (_report.ValidRows > 0 && _savedMessage is null)
+        {
+            <button class="btn btn-primary" @onclick="SaveValidRows" disabled="@_saving">
+                Save @_report.ValidRows valid rows
+            </button>
+        }
+        @if (_savedMessage is not null)
+        {
+            <p class="status success">@_savedMessage</p>
+        }
+
         @if (_report.IssueCount == 0)
         {
             <p class="status success">All rows are valid. Ready for go-live.</p>
@@ -65,6 +79,33 @@
     private bool _loading;
     private string? _error;
     private string? _fileName;
+    private bool _saving;
+    private string? _savedMessage;
+
+    private async Task SaveValidRows()
+    {
+        if (_report is null) return;
+        _saving = true;
+        _error = null;
+
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            db.Customers.AddRange(_report.ValidCustomers);
+            await db.SaveChangesAsync();
+
+            var total = await db.Customers.CountAsync();   // LINQ to the database
+            _savedMessage = $"Saved {_report.ValidCustomers.Count} rows. The table now has {total} customers.";
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not save: {ex.Message}";
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
 
     private async Task OnFileSelected(InputFileChangeEventArgs e)
     {
@@ -72,6 +113,7 @@
         _error = null;
         _report = null;
         _fileName = e.File.Name;
+        _savedMessage = null;
 
         try
         {

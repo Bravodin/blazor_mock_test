@@ -62,7 +62,19 @@ public sealed class RecordValidator : IRecordValidator
             else if (birthDate > DateOnly.FromDateTime(DateTime.Today))
                 report.AddIssue(line, "birthDate", "Date is in the future.");
 
-            if (report.IssueCount == issuesBefore) report.ValidRows++;
+            if (report.IssueCount == issuesBefore)
+            {
+                report.ValidRows++;
+                report.ValidCustomers.Add(new Customer
+                {
+                    ExternalId = id,
+                    Name = name,
+                    Email = email,
+                    BirthDate = birthDate,
+                    ImportedAt = DateTime.UtcNow
+                });
+            }
+
         }
 
         return report;

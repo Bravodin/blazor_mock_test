@@ -5,7 +5,7 @@ public sealed record ValidationIssue(int Line, string Field, string Message);
 public sealed class FileValidationReport
 {
     public const int MaxIssuesShown = 500;
-
+    public List<Customer> ValidCustomers { get; } = new();
     public int TotalRows { get; set; }
     public int ValidRows { get; set; }
     public int InvalidRows => TotalRows - ValidRows;
