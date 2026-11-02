@@ -1,0 +1,86 @@
+﻿.validator {
+    max-width: 880px;
+}
+
+.lead {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: .25rem;
+}
+
+.hint {
+    color: #666;
+    font-size: .9rem;
+}
+
+.upload {
+    margin: 1.25rem 0;
+    padding: 1.25rem;
+    border: 2px dashed #c9cdd4;
+    border-radius: 10px;
+    background: #fafbfc;
+}
+
+.status {
+    font-weight: 600;
+}
+
+    .status.error {
+        color: #b42318;
+    }
+
+    .status.success {
+        color: #067647;
+    }
+
+.cards {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1 1 140px;
+    padding: 1rem;
+    border-radius: 10px;
+    background: #f2f4f7;
+    display: flex;
+    flex-direction: column;
+}
+
+    .card .num {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .card.ok {
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    .card.bad {
+        background: #fef3f2;
+        color: #b42318;
+    }
+
+.issues {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: .5rem;
+}
+
+    .issues th, .issues td {
+        text-align: left;
+        padding: .5rem .75rem;
+        border-bottom: 1px solid #eaecf0;
+    }
+
+    .issues th {
+        background: #f9fafb;
+        font-weight: 600;
+    }
+
+    .issues tbody tr:hover {
+        background: #f9fafb;
+    }

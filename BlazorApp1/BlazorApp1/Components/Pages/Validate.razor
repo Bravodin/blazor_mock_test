@@ -1,0 +1,90 @@
+﻿@page "/validate"
+@rendermode InteractiveServer
+@using BlazorApp1.Models
+@using BlazorApp1.Services
+@inject IRecordValidator Validator
+
+<PageTitle>Data Validator</PageTitle>
+
+<section class="validator">
+    <header>
+        <h1>Pre go-live data validator</h1>
+        <p class="lead">Upload your customer CSV and fix data issues before go-live.</p>
+        <p class="hint">
+            Expected columns: <code>id,name,email,birthDate</code> (date as yyyy-MM-dd).
+            <a href="sample-customers.csv" download>Download a sample</a>
+        </p>
+    </header>
+
+    <div class="upload">
+        <InputFile OnChange="OnFileSelected" accept=".csv" disabled="@_loading" />
+    </div>
+
+    @if (_loading)
+    {
+        <p class="status">Validating @_fileName...</p>
+    }
+    @if (_error is not null)
+    {
+        <p class="status error">@_error</p>
+    }
+
+    @if (_report is not null)
+    {
+        <div class="cards">
+            <div class="card"><span class="num">@_report.TotalRows</span><span>rows</span></div>
+            <div class="card ok"><span class="num">@_report.ValidRows</span><span>valid</span></div>
+            <div class="card bad"><span class="num">@_report.InvalidRows</span><span>with issues</span></div>
+        </div>
+
+        @if (_report.IssueCount == 0)
+        {
+            <p class="status success">All rows are valid. Ready for go-live.</p>
+        }
+        else
+        {
+            @if (_report.IssueCount > _report.Issues.Count)
+            {
+                <p class="hint">Showing the first @_report.Issues.Count of @_report.IssueCount issues.</p>
+            }
+            <table class="issues">
+                <thead><tr><th>Line</th><th>Field</th><th>Issue</th></tr></thead>
+                <tbody>
+                    @foreach (var issue in _report.Issues)
+                    {
+                        <tr><td>@issue.Line</td><td><code>@issue.Field</code></td><td>@issue.Message</td></tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+</section>
+
+@code {
+    private FileValidationReport? _report;
+    private bool _loading;
+    private string? _error;
+    private string? _fileName;
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        _loading = true;
+        _error = null;
+        _report = null;
+        _fileName = e.File.Name;
+
+        try
+        {
+            await using var stream = e.File.OpenReadStream(maxAllowedSize: 50 * 1024 * 1024);
+            _report = await Validator.ValidateAsync(stream);
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not read the file: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

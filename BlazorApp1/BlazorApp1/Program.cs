@@ -6,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Stateless (no fields, no DbContext), so Singleton is safe.
+// If it used a DbContext, it would have to be Scoped.
+builder.Services.AddSingleton<BlazorApp1.Services.IRecordValidator, BlazorApp1.Services.RecordValidator>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
